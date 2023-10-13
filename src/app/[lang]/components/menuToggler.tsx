@@ -1,7 +1,7 @@
 'use client'
 import { GiHamburgerMenu } from "react-icons/gi"
 import { CgClose } from "react-icons/cg"
-import toggleMenu from "../../utils/toggleMenu"
+import toggleMenu from "@/app/utils/toggleMenu"
 import { useState } from "react"
 
 export default function MenuToggler() {

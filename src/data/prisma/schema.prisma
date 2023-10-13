@@ -1,0 +1,82 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Movie {
+  id             String         @id @default(uuid())
+  name           String
+  description    String
+  categories     String
+  ageRestriction Int
+  duration       String
+  releaseDate    DateTime       @db.Date
+  Session        MovieSession[]
+}
+
+model MovieSession {
+  id        String    @id @default(uuid())
+  date      DateTime  @db.Date
+  timeStart String
+  timeEnd   String
+  hall      Hall      @relation(fields: [hallId], references: [id])
+  hallId    String
+  movie     Movie     @relation(fields: [movieId], references: [id])
+  movieId   String
+  Booking   Booking[]
+}
+
+model Cinema {
+  id   String @id @default(uuid())
+  name String
+  hall Hall[]
+}
+
+model Hall {
+  id       String         @id @default(uuid())
+  cinema   Cinema         @relation(fields: [cinemaId], references: [id])
+  cinemaId String
+  Seat     Seat[]
+  Session  MovieSession[]
+}
+
+model Seat {
+  id        String   @id @default(uuid())
+  number    Int
+  price     Int
+  booking   Booking? @relation(fields: [bookingId], references: [id])
+  bookingId String?
+  hall      Hall     @relation(fields: [hallId], references: [id])
+  hallId    String
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  amount    Int
+  date      DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  bookingId String   @unique
+}
+
+model Booking {
+  id          String       @id @default(uuid())
+  status      String // reserved / none / complete
+  Transaction Transaction?
+  Seat        Seat[]
+  user        User         @relation(fields: [userId], references: [id])
+  userId      String
+  session     MovieSession @relation(fields: [sessionId], references: [id])
+  sessionId   String
+}
+
+model User {
+  id      String    @id @default(uuid())
+  email   String
+  phone   String?
+  name    String?
+  Booking Booking[]
+}

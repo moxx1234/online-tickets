@@ -1,4 +1,3 @@
-import Header from "./components/header"
 import { dictionary } from "@/content"
 
 export default async function Home({
@@ -8,10 +7,7 @@ export default async function Home({
 }) {
 	return (
 		<>
-			<Header lang={params.lang} />
-			<main>
-				<h1>{dictionary[params.lang]?.greeting}</h1>
-			</main>
+			<h1>{dictionary[params.lang]?.greeting}</h1>
 		</>
 	)
 }
