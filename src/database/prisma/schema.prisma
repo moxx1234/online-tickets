@@ -1,0 +1,96 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Movie {
+  id             String         @id @default(uuid())
+  name           String
+  description    String
+  categories     String
+  ageRestriction Int
+  duration       String
+  releaseDate    DateTime       @db.Date
+  movieSession   MovieSession[]
+}
+
+model MovieSession {
+  id               String             @id @default(uuid())
+  date             DateTime           @db.Date
+  timeStart        String
+  timeEnd          String
+  price            Int
+  cinemaHall       CinemaHall         @relation(fields: [cinemahallId], references: [id])
+  cinemahallId     String
+  movie            Movie              @relation(fields: [movieId], references: [id])
+  movieId          String
+  Booking          Booking[]
+  movieSessionSeat MovieSessionSeat[]
+}
+
+model MovieSessionSeat {
+  id             String       @id @default(uuid())
+  free           Boolean      @default(true)
+  movieSession   MovieSession @relation(fields: [movieSessionId], references: [id])
+  movieSessionId String
+  cinemaSeat     CinemaSeat   @relation(fields: [cinemaSeatId], references: [id])
+  cinemaSeatId   String
+  booking        Booking      @relation(fields: [bookingId], references: [id])
+  bookingId      String       @unique
+}
+
+model Cinema {
+  id           String       @id @default(uuid())
+  name         String
+  workingHours String
+  cinemaHall   CinemaHall[]
+}
+
+model CinemaHall {
+  id           String         @id @default(uuid())
+  cinema       Cinema         @relation(fields: [cinemaId], references: [id])
+  cinemaId     String
+  seat         CinemaSeat[]
+  movieSession MovieSession[]
+}
+
+model CinemaSeat {
+  id               String             @id @default(uuid())
+  booking          Booking?           @relation(fields: [bookingId], references: [id])
+  bookingId        String?
+  cinemaHall       CinemaHall         @relation(fields: [cinemaHallId], references: [id])
+  cinemaHallId     String
+  movieSessionSeat MovieSessionSeat[]
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  amount    Int
+  date      DateTime @default(now())
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  bookingId String   @unique
+}
+
+model Booking {
+  id               String            @id @default(uuid())
+  status           String // reserved / none / complete
+  transaction      Transaction?
+  movieSessionSeat MovieSessionSeat?
+  seat             CinemaSeat[]
+  user             User              @relation(fields: [userId], references: [id])
+  userId           String
+  movieSession     MovieSession      @relation(fields: [movieSessionId], references: [id])
+  movieSessionId   String
+}
+
+model User {
+  id      String    @id @default(uuid())
+  email   String
+  phone   String?
+  name    String?
+  booking Booking[]
+}
